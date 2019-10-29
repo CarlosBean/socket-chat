@@ -16,13 +16,15 @@ io.on('connection', (client) => {
         client.join(data.room);
         user.addUser(client.id, data.name, data.room);
         client.broadcast.to(data.room).emit('listUsers', user.getUsersByRoom(data.room));
+        client.broadcast.to(data.room).emit('createMessage', createMessage('ADMIN', `${data.name} join to chat`));
         cb(user.getUsersByRoom(data.room));
     });
 
-    client.on('createMessage', (data) => {
+    client.on('createMessage', (data, cb) => {
         const myUser = user.getUser(client.id);
         const message = createMessage(myUser.name, data.message);
         client.broadcast.to(myUser.room).emit('createMessage', message);
+        cb(message);
     });
 
     client.on('disconnect', () => {
